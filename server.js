@@ -1,15 +1,26 @@
-import rp from 'request-promise';
-import express from 'express';
+const rp = require('request-promise');
+const CronJob = require('cron').CronJob;
 const url = 'https://ignio.com/r/export/utf/xml/daily/com.xml';
 
-const app = express();
-const port = 8080;
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
-rp(url).then(function (html) {
-  app.get('/', (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.send(html);
+function getData() {
+  rp(url).then(function (data) {
+    html = data;
   });
+}
+
+let html;
+getData();
+
+const job = new CronJob('00 00 00 * * *', function () {
+  getData();
 });
+job.start();
+
+const express = require('express');
+const app = express();
+
+app.all('/', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.send(html);
+});
+app.listen(process.env.PORT || 3000);
