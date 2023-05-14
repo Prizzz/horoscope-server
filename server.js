@@ -11,7 +11,8 @@ function getData() {
 let html;
 getData();
 
-const job = new CronJob('00 00 00 * * *', function () {
+const job = new CronJob('0 */59 * * * *', function () {
+  console.log('data update');
   getData();
 });
 job.start();
